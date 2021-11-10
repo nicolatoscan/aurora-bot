@@ -1,0 +1,29 @@
+{
+  "name": "aurora-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot to get notification when the probability of seeing an aurora increase",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "ts-node dist/index.js",
+    "serve": "ts-node src/index.ts",
+    "transpile": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nicolatoscan/aurora-bot.git"
+  },
+  "author": "Nicola Toscan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nicolatoscan/aurora-bot/issues"
+  },
+  "homepage": "https://github.com/nicolatoscan/aurora-bot#readme",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "dotenv": "^10.0.0",
+    "telegraf": "^4.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.7"
+  }
+}
