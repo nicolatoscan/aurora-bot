@@ -8,8 +8,6 @@ interface KpData {
     kp: number;
 }
 
-enum DateFormat { DATE, TIME };
-
 class AuroraBot {
     private bot: Telegraf<Context>;
     private CHANNEL_ID: number;
@@ -56,10 +54,11 @@ class AuroraBot {
 
     private notifications() {
         let lastNotification: null | Date = null;
-        setTimeout(async () => {
-            if (lastNotification && new Date().getTime() - lastNotification.getTime() < 1000 * 60 * 60) {
-                const kp = (await this.getForecastKp()).filter(x => x.time >= new Date())[0].kp
+        setInterval(async () => {
+            if (!lastNotification || new Date().getTime() - lastNotification.getTime() > 1000 * 60 * 60) {
+                const kp = (await this.getForecastKp()).filter(x => x.time >= new Date())[0].kp;
                 if (kp >= 5) {
+                    console.log('Sending notifications');
                     await this.bot.telegram.sendMessage(this.CHANNEL_ID, `Aurora is coming (maybe)!\nKP is ${kp}`);
                     lastNotification = new Date();
                 }
