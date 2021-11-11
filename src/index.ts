@@ -81,7 +81,6 @@ class AuroraBot {
     }
 
     private async lastK(ctx: Context) {
-        console.log(ctx.from.id);
         const kpData = (await this.getMinuteKp()).slice(-50).filter((x, i) => i % 5 === 0);
         ctx.reply(`Last recorded Kp indexes:\n${this.getLines(kpData, true)}`);
     }
