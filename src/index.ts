@@ -12,11 +12,13 @@ enum DateFormat { DATE, TIME };
 
 class AuroraBot {
     private bot: Telegraf<Context>;
+    private CHANNEL_ID: number;
 
     constructor() {
         const TOKEN = process.env.BOT_TOKEN
-        if (!TOKEN) {
-            console.error('No token provided');
+        this.CHANNEL_ID = +(process.env.CHANNEL_ID ?? '0')
+        if (!TOKEN || !this.CHANNEL_ID) {
+            console.error('No token or channel id provided');
             process.exit(1);
         }
 
@@ -28,6 +30,8 @@ class AuroraBot {
 
         this.bot.launch();
         console.log('Bot started');
+
+        this.notifications()
     }
 
     private async getKpData(url: string): Promise<KpData[]> {
@@ -50,9 +54,21 @@ class AuroraBot {
         return this.getKpData('http://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json');
     }
 
+    private notifications() {
+        let lastNotification: null | Date = null;
+        setTimeout(async () => {
+            if (lastNotification && new Date().getTime() - lastNotification.getTime() < 1000 * 60 * 60) {
+                const kp = (await this.getForecastKp()).filter(x => x.time >= new Date())[0].kp
+                if (kp >= 5) {
+                    await this.bot.telegram.sendMessage(this.CHANNEL_ID, `Aurora is coming (maybe)!\nKP is ${kp}`);
+                    lastNotification = new Date();
+                }
+            }
+        }, 1000 * 60 * 5)
+    }
+
     private getLine(d: KpData, minutes: boolean = false): string {
         const roundedKP = Math.min(8, Math.round(d.kp));
-        // const alert = '🟢🟢🟢🔵🟣🟡🟠🔴🔴'[roundedKP];
         const alert = ['🟢', '🟢', '🟢', '🔵', '🟣', '🟡', '🟠', '🔴', '🔴'][roundedKP];
         const bar = ''.padEnd(roundedKP, '█') + ''.padEnd(8 - roundedKP, '░');
         const date = minutes 
@@ -66,6 +82,7 @@ class AuroraBot {
     }
 
     private async lastK(ctx: Context) {
+        console.log(ctx.from.id);
         const kpData = (await this.getMinuteKp()).slice(-50).filter((x, i) => i % 5 === 0);
         ctx.reply(`Last recorded Kp indexes:\n${this.getLines(kpData, true)}`);
     }
