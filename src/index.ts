@@ -91,7 +91,9 @@ class AuroraBot {
     }
 
     private async history(ctx: Context) {
-        const kpData = (await this.getPastKp()).slice(-10);
+        const text = (ctx.message as any)?.text;
+        const n = text ? +text.replace('/history', '').trim() : 10;
+        const kpData = (await this.getPastKp()).slice(-n);
         ctx.reply(`Last recorded Kp indexes:\n${this.getLines(kpData)}`);
     }
 }
